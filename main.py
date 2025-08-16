@@ -4,8 +4,16 @@ import re
 from sentence_transformers import SentenceTransformer, util
 
 
-# ---------- Load model ----------
-model = SentenceTransformer('all-MiniLM-L6-v2')
+@lru_cache(maxsize=1)
+def get_model():
+    return SentenceTransformer("paraphrase-MiniLM-L3-v2")
+
+def get_similarity(text1: str, text2: str) -> float:
+    model = get_model()
+    emb1 = model.encode(text1, convert_to_tensor=True)
+    emb2 = model.encode(text2, convert_to_tensor=True)
+    score = util.cos_sim(emb1, emb2).item()
+    return round((score + 1) / 2, 3)
 
 def get_similarity(text1: str, text2: str) -> float:
     emb1 = model.encode(text1, convert_to_tensor=True)
@@ -30,3 +38,4 @@ def similarity_endpoint(req: SimilarityRequest):
     clean2 = req.text2
     score = get_similarity(clean1, clean2)
     return {"similarity score": score}
+
