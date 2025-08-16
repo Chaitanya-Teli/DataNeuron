@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import re
 from sentence_transformers import SentenceTransformer, util
+from functools import lru_cache
 
 
 @lru_cache(maxsize=1)
@@ -38,4 +39,5 @@ def similarity_endpoint(req: SimilarityRequest):
     clean2 = req.text2
     score = get_similarity(clean1, clean2)
     return {"similarity score": score}
+
 
